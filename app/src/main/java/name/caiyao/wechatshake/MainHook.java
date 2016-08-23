@@ -7,6 +7,7 @@ import android.content.IntentFilter;
 import android.os.Build;
 import android.view.KeyEvent;
 
+import java.lang.reflect.Field;
 import java.util.Random;
 
 import de.robv.android.xposed.IXposedHookLoadPackage;
@@ -39,10 +40,10 @@ public class MainHook implements IXposedHookLoadPackage {
     @Override
     public void handleLoadPackage(XC_LoadPackage.LoadPackageParam loadPackageParam) throws Throwable {
         if (loadPackageParam.packageName.equals("android")) {
-            final Object activityThread = XposedHelpers.callStaticMethod(XposedHelpers.findClass("android.app.ActivityThread", null), "currentActivityThread");
-            final Context systemContext = (Context) XposedHelpers.callMethod(activityThread, "getSystemContext");
+//            final Object activityThread = XposedHelpers.callStaticMethod(XposedHelpers.findClass("android.app.ActivityThread", null), "currentActivityThread");
+//            final Context systemContext = (Context) XposedHelpers.callMethod(activityThread, "getSystemContext");
 
-            Class<?> phoneWindowManager;
+            final Class<?> phoneWindowManager;
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 XposedBridge.log("KeyCode:Android 6.X");
                 phoneWindowManager = XposedHelpers.findClass("com.android.server.policy.PhoneWindowManager", loadPackageParam.classLoader);
@@ -55,9 +56,12 @@ public class MainHook implements IXposedHookLoadPackage {
                 @Override
                 protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
                     int v1 = ((KeyEvent) param.args[0]).getKeyCode();
+                    Field contextField = XposedHelpers.findField(phoneWindowManager, "mContext");
+                    contextField.setAccessible(true);
+                    final Context context = (Context) contextField.get(param.thisObject);
                     XposedBridge.log("KeyCode:" + v1);
                     if (v1 == KeyEvent.KEYCODE_VOLUME_DOWN) {
-                        systemContext.sendBroadcast(new Intent("name.caiyao.START"));
+                        context.sendBroadcast(new Intent("name.caiyao.START"));
                     }
                 }
             });
