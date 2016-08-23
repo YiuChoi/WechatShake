@@ -42,35 +42,25 @@ public class MainHook implements IXposedHookLoadPackage {
             final Object activityThread = XposedHelpers.callStaticMethod(XposedHelpers.findClass("android.app.ActivityThread", null), "currentActivityThread");
             final Context systemContext = (Context) XposedHelpers.callMethod(activityThread, "getSystemContext");
 
-            final Class<?> phoneWindowManager;
+            Class<?> phoneWindowManager;
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                XposedBridge.log("KeyCode:Android 6.X");
                 phoneWindowManager = XposedHelpers.findClass("com.android.server.policy.PhoneWindowManager", loadPackageParam.classLoader);
-                XposedBridge.hookAllMethods(phoneWindowManager, "interceptKeyBeforeQueueing", new XC_MethodHook() {
-
-                    @Override
-                    protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-                        int v1 = ((KeyEvent) param.args[0]).getKeyCode();
-                        XposedBridge.log("KeyCode:"+v1);
-                        if (v1 == KeyEvent.KEYCODE_VOLUME_DOWN) {
-                            systemContext.sendBroadcast(new Intent("name.caiyao.START"));
-                        }
-                    }
-                });
-            } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
+            } else {
                 XposedBridge.log("KeyCode:Android 4.X");
                 phoneWindowManager = XposedHelpers.findClass("com.android.internal.policy.impl.PhoneWindowManager", loadPackageParam.classLoader);
-                XposedBridge.hookAllMethods(phoneWindowManager, "interceptKeyBeforeQueueing", new XC_MethodHook() {
-
-                    @Override
-                    protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-                        int v1 = ((KeyEvent) param.args[0]).getKeyCode();
-                        XposedBridge.log("KeyCode:"+v1);
-                        if (v1 == KeyEvent.KEYCODE_VOLUME_DOWN) {
-                            systemContext.sendBroadcast(new Intent("name.caiyao.START"));
-                        }
-                    }
-                });
             }
+            XposedBridge.hookAllMethods(phoneWindowManager, "interceptKeyBeforeQueueing", new XC_MethodHook() {
+
+                @Override
+                protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+                    int v1 = ((KeyEvent) param.args[0]).getKeyCode();
+                    XposedBridge.log("KeyCode:" + v1);
+                    if (v1 == KeyEvent.KEYCODE_VOLUME_DOWN) {
+                        systemContext.sendBroadcast(new Intent("name.caiyao.START"));
+                    }
+                }
+            });
         }
 
         if (loadPackageParam.packageName.equals(packages[0]) ||
@@ -82,7 +72,7 @@ public class MainHook implements IXposedHookLoadPackage {
                 loadPackageParam.packageName.equals(packages[6]) ||
                 loadPackageParam.packageName.equals(packages[7]) ||
                 loadPackageParam.packageName.equals(packages[8]) ||
-                loadPackageParam.packageName.equals(packages[9])||loadPackageParam.packageName.equals("com.tencent.mm")) {
+                loadPackageParam.packageName.equals(packages[9]) || loadPackageParam.packageName.equals("com.tencent.mm")) {
             final Object activityThread = XposedHelpers.callStaticMethod(XposedHelpers.findClass("android.app.ActivityThread", null), "currentActivityThread");
             Context systemContext = (Context) XposedHelpers.callMethod(activityThread, "getSystemContext");
             systemContext.registerReceiver(new BroadcastReceiver() {
