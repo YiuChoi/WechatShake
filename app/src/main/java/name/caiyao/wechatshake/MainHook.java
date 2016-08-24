@@ -1,9 +1,12 @@
 package name.caiyao.wechatshake;
 
+import android.app.ActivityManager;
 import android.content.BroadcastReceiver;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.os.Build;
 
 import java.util.Random;
 
@@ -13,6 +16,7 @@ import de.robv.android.xposed.XposedHelpers;
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
 
 import static de.robv.android.xposed.XposedBridge.hookAllMethods;
+import static de.robv.android.xposed.XposedHelpers.findAndHookMethod;
 import static de.robv.android.xposed.XposedHelpers.findClass;
 
 /**
@@ -72,12 +76,19 @@ public class MainHook implements IXposedHookLoadPackage {
             });
             //进入检测
             // com.tencent.mm/.plugin.shake.ui.ShakeReportUI
-//            findAndHookMethod(loadPackageParam.packageName + ".plugin.shake.ui.ShakeReportUI", loadPackageParam.classLoader, "onResume", new XC_MethodHook() {
-//                @Override
-//                protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-//                    systemContext.sendBroadcast(new Intent("name.caiyao.START"));
-//                }
-//            });
+            findAndHookMethod(loadPackageParam.packageName + ".plugin.shake.ui.ShakeReportUI", loadPackageParam.classLoader, "onResume", new XC_MethodHook() {
+                @Override
+                protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                    systemContext.sendBroadcast(new Intent("name.caiyao.START"));
+                }
+            });
+
+            if (Build.VERSION.SDK_INT<=Build.VERSION_CODES.KITKAT_WATCH){
+                ActivityManager am = (ActivityManager) systemContext.getSystemService(Context.ACTIVITY_SERVICE);
+                ComponentName cn = am.getRunningTasks(1).get(0).topActivity;
+
+            }
+
             //自动进入
 //            findAndHookMethod( loadPackageParam.packageName + ".ui.LauncherUI", loadPackageParam.classLoader, "onCreate", Bundle.class, new XC_MethodHook() {
 //                @Override
