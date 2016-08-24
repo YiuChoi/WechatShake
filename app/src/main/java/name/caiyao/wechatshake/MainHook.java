@@ -71,6 +71,7 @@ public class MainHook implements IXposedHookLoadPackage {
                     }
                 }
             });
+            // com.tencent.mm/.plugin.shake.ui.ShakeReportUI
             findAndHookMethod(loadPackageParam.packageName + ".plugin.shake.ui.ShakeReportUI", loadPackageParam.classLoader, "onResume", new XC_MethodHook() {
                 @Override
                 protected void afterHookedMethod(MethodHookParam param) throws Throwable {
