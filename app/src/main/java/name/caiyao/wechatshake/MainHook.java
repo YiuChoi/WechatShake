@@ -77,7 +77,6 @@ public class MainHook implements IXposedHookLoadPackage {
             });
             //进入检测
             // com.tencent.mm/.plugin.shake.ui.ShakeReportUI
-
             if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.KITKAT_WATCH) {
                 findAndHookMethod(Application.class, "dispatchActivityResumed", Activity.class, new XC_MethodHook() {
                     @Override
