@@ -13,7 +13,6 @@ import de.robv.android.xposed.XposedHelpers;
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
 
 import static de.robv.android.xposed.XposedBridge.hookAllMethods;
-import static de.robv.android.xposed.XposedHelpers.findAndHookMethod;
 import static de.robv.android.xposed.XposedHelpers.findClass;
 
 /**
@@ -37,7 +36,7 @@ public class MainHook implements IXposedHookLoadPackage {
     };
 
     @Override
-    public void handleLoadPackage(XC_LoadPackage.LoadPackageParam loadPackageParam) throws Throwable {
+    public void handleLoadPackage(final XC_LoadPackage.LoadPackageParam loadPackageParam) throws Throwable {
         if (loadPackageParam.packageName.equals(packages[0]) ||
                 loadPackageParam.packageName.equals(packages[1]) ||
                 loadPackageParam.packageName.equals(packages[2]) ||
@@ -71,13 +70,33 @@ public class MainHook implements IXposedHookLoadPackage {
                     }
                 }
             });
+            //进入检测
             // com.tencent.mm/.plugin.shake.ui.ShakeReportUI
-            findAndHookMethod(loadPackageParam.packageName + ".plugin.shake.ui.ShakeReportUI", loadPackageParam.classLoader, "onResume", new XC_MethodHook() {
-                @Override
-                protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                    systemContext.sendBroadcast(new Intent("name.caiyao.START"));
-                }
-            });
+//            findAndHookMethod(loadPackageParam.packageName + ".plugin.shake.ui.ShakeReportUI", loadPackageParam.classLoader, "onResume", new XC_MethodHook() {
+//                @Override
+//                protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+//                    systemContext.sendBroadcast(new Intent("name.caiyao.START"));
+//                }
+//            });
+            //自动进入
+//            findAndHookMethod( loadPackageParam.packageName + ".ui.LauncherUI", loadPackageParam.classLoader, "onCreate", Bundle.class, new XC_MethodHook() {
+//                @Override
+//                protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+//                    Activity activity = (Activity) param.thisObject;
+//                    if (activity != null) {
+//                        Intent intent = activity.getIntent();
+//                        if (intent != null) {
+//                            String className = intent.getComponent().getClassName();
+//                            if (!TextUtils.isEmpty(className) && className.equals( loadPackageParam.packageName + ".ui.LauncherUI") && intent.hasExtra("shake")) {
+//                                Intent donateIntent = new Intent();
+//                                donateIntent.setClassName(activity, loadPackageParam.packageName + ".plugin.shake.ui.ShakeReportUI");
+//                                activity.startActivity(donateIntent);
+//                                activity.finish();
+//                            }
+//                        }
+//                    }
+//                }
+//            });
         }
     }
 }
