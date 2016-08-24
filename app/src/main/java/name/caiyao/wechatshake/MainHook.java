@@ -22,7 +22,6 @@ import de.robv.android.xposed.callbacks.XC_LoadPackage;
 
 public class MainHook implements IXposedHookLoadPackage {
     private int count = 1;
-    private int count_test = 0;
     private static boolean isShake = false;
     private String[] packages = {
             "com.tencen01.mm",
@@ -40,15 +39,10 @@ public class MainHook implements IXposedHookLoadPackage {
     @Override
     public void handleLoadPackage(XC_LoadPackage.LoadPackageParam loadPackageParam) throws Throwable {
         if (loadPackageParam.packageName.equals("android")) {
-//            final Object activityThread = XposedHelpers.callStaticMethod(XposedHelpers.findClass("android.app.ActivityThread", null), "currentActivityThread");
-//            final Context systemContext = (Context) XposedHelpers.callMethod(activityThread, "getSystemContext");
-
             final Class<?> phoneWindowManager;
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                XposedBridge.log("KeyCode:Android 6.X");
                 phoneWindowManager = XposedHelpers.findClass("com.android.server.policy.PhoneWindowManager", loadPackageParam.classLoader);
             } else {
-                XposedBridge.log("KeyCode:Android 4.X");
                 phoneWindowManager = XposedHelpers.findClass("com.android.internal.policy.impl.PhoneWindowManager", loadPackageParam.classLoader);
             }
             XposedBridge.hookAllMethods(phoneWindowManager, "interceptKeyBeforeQueueing", new XC_MethodHook() {
@@ -59,9 +53,9 @@ public class MainHook implements IXposedHookLoadPackage {
                     Field contextField = XposedHelpers.findField(phoneWindowManager, "mContext");
                     contextField.setAccessible(true);
                     final Context context = (Context) contextField.get(param.thisObject);
-                    XposedBridge.log("KeyCode:" + v1);
                     if (v1 == KeyEvent.KEYCODE_VOLUME_DOWN) {
                         context.sendBroadcast(new Intent("name.caiyao.START"));
+                        param.args[0] = new KeyEvent(0, 0, 0, -1, 0);
                     }
                 }
             });
@@ -92,10 +86,6 @@ public class MainHook implements IXposedHookLoadPackage {
                 @Override
                 protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
                     if (isShake) {
-                        count_test++;
-                        if (count_test > 4000) {
-                            return;
-                        }
                         count++;
                         ((float[]) param.args[1])[0] = new Random().nextFloat() * 1200f + 125f;
                         if (count == 200) {
