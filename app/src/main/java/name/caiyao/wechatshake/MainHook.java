@@ -132,7 +132,6 @@ public class MainHook implements IXposedHookLoadPackage {
                                         Intent donateIntent = new Intent();
                                         donateIntent.setClassName(activity, loadPackageParam.packageName.replace("0", "") + ".plugin.shake.ui.ShakeReportUI");
                                         activity.startActivity(donateIntent);
-                                        activity.finish();
                                     }
                                 }
                             }
