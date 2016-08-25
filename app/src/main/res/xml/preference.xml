@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <CheckBoxPreference
+        android:defaultValue="true"
+        android:key="open"
+        android:summaryOff="关闭"
+        android:summaryOn="打开"
+        android:title="自动摇一摇"/>
+    <Preference
+        android:title="支付宝捐赠">
+        <intent
+            android:action="android.intent.action.VIEW"
+            android:data="alipayqr://platformapi/startapp?saId=10000007&amp;clientVersion=3.7.0.0718&amp;qrcode=https://qr.alipay.com/apoy1zw1o2xpc7915d"/>
+    </Preference>
+    <Preference
+        android:key="about"
+        android:summary="官网"
+        android:title="关于">
+        <intent
+            android:action="android.intent.action.VIEW"
+            android:data="http://caiyao.name/releases"/>
+    </Preference>
+    <Preference
+        android:key="co"
+        android:summary="点击加群"
+        android:title="商业合作">
+    </Preference>
+</PreferenceScreen>
