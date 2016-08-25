@@ -10,9 +10,9 @@ import android.widget.Toast;
 /**
  * Created by 蔡小木 on 2016/8/25 0025.
  */
-public class SettingFragment extends PreferenceFragment {
-    private static final String START = "name.caiyao.wechatshake.SHAKE_START";
-    private static final String STOP = "name.caiyao.wechatshake.SHAKE_STOP";
+public class SettingFragment extends PreferenceFragment implements Preference.OnPreferenceChangeListener {
+    private static final String START = "name.caiyao.wechatshake.SHAKE";
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -23,18 +23,7 @@ public class SettingFragment extends PreferenceFragment {
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        findPreference("open").setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
-            @Override
-            public boolean onPreferenceChange(Preference preference, Object o) {
-                boolean isOpen = getPreferenceManager().getSharedPreferences().getBoolean("open", true);
-                if (isOpen) {
-                    getActivity().sendBroadcast(new Intent(START));
-                } else {
-                    getActivity().sendBroadcast(new Intent(STOP));
-                }
-                return true;
-            }
-        });
+        findPreference("open").setOnPreferenceChangeListener(this);
         findPreference("co").setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
             public boolean onPreferenceClick(Preference preference) {
@@ -49,5 +38,13 @@ public class SettingFragment extends PreferenceFragment {
                 return true;
             }
         });
+    }
+
+    @Override
+    public boolean onPreferenceChange(Preference preference, Object o) {
+        Intent intent = new Intent(START);
+        intent.putExtra("open", getPreferenceManager().getSharedPreferences().getBoolean("open", true));
+        getActivity().sendBroadcast(intent);
+        return true;
     }
 }

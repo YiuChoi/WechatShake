@@ -14,7 +14,7 @@
     </Preference>
     <Preference
         android:key="about"
-        android:summary="官网"
+        android:summary="进入官网"
         android:title="关于">
         <intent
             android:action="android.intent.action.VIEW"
@@ -22,7 +22,7 @@
     </Preference>
     <Preference
         android:key="co"
-        android:summary="点击加群"
+        android:summary="加入群"
         android:title="商业合作">
     </Preference>
 </PreferenceScreen>

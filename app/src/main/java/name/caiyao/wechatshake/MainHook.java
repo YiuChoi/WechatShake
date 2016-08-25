@@ -20,8 +20,7 @@ import de.robv.android.xposed.callbacks.XC_LoadPackage;
  */
 
 public class MainHook implements IXposedHookLoadPackage, IXposedHookZygoteInit {
-    private static final String START = "name.caiyao.wechatshake.SHAKE_START";
-    private static final String STOP = "name.caiyao.wechatshake.SHAKE_STOP";
+    private static final String START = "name.caiyao.wechatshake.SHAKE";
     private XSharedPreferences sharedPreferences;
     private static boolean isShake = false;
     private static boolean isOpen = true;
@@ -33,7 +32,7 @@ public class MainHook implements IXposedHookLoadPackage, IXposedHookZygoteInit {
             new Thread() {
                 @Override
                 public void run() {
-                    while (!interrupted()) {
+                    while (true) {
                         if (isOpen) {
                             if (isShake) {
                                 try {
@@ -53,6 +52,7 @@ public class MainHook implements IXposedHookLoadPackage, IXposedHookZygoteInit {
                         } else {
                             try {
                                 Thread.sleep(1000);
+                                isShake = false;
                             } catch (InterruptedException e) {
                                 e.printStackTrace();
                             }
@@ -64,19 +64,13 @@ public class MainHook implements IXposedHookLoadPackage, IXposedHookZygoteInit {
             final Object activityThread = XposedHelpers.callStaticMethod(XposedHelpers.findClass("android.app.ActivityThread", null), "currentActivityThread");
             final Context systemContext = (Context) XposedHelpers.callMethod(activityThread, "getSystemContext");
             IntentFilter intentFilter = new IntentFilter();
-            intentFilter.addAction(START);
-            intentFilter.addAction(STOP);
             systemContext.registerReceiver(new BroadcastReceiver() {
                 @Override
                 public void onReceive(Context context, Intent intent) {
-                    XposedBridge.log("收到：" + intent.getAction());
-                    if (intent.getAction().endsWith(START)) {
-                        isOpen = true;
-                    } else if (intent.getAction().endsWith(STOP)) {
-                        isOpen = false;
-                    }
+                    XposedBridge.log("收到：" + intent.getAction()+":"+intent.getBooleanExtra("open",true));
+                    isOpen = intent.getBooleanExtra("open",true);
                 }
-            }, intentFilter);
+            }, new IntentFilter(START));
 
             final Class<?> sensorEL = XposedHelpers.findClass("android.hardware.SystemSensorManager$SensorEventQueue", loadPackageParam.classLoader);
             XposedBridge.hookAllMethods(sensorEL, "dispatchSensorEvent", new XC_MethodHook() {
