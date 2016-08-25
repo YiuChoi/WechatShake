@@ -5,6 +5,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.preference.Preference;
 import android.preference.PreferenceFragment;
+import android.util.Log;
 import android.widget.Toast;
 
 /**
@@ -43,6 +44,7 @@ public class SettingFragment extends PreferenceFragment implements Preference.On
     @Override
     public boolean onPreferenceChange(Preference preference, Object o) {
         Intent intent = new Intent(START);
+        Log.i("xposed","修改后状态："+getPreferenceManager().getSharedPreferences().getBoolean("open", true));
         intent.putExtra("open", getPreferenceManager().getSharedPreferences().getBoolean("open", true));
         getActivity().sendBroadcast(intent);
         return true;

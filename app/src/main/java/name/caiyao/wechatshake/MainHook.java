@@ -32,27 +32,27 @@ public class MainHook implements IXposedHookLoadPackage, IXposedHookZygoteInit {
             new Thread() {
                 @Override
                 public void run() {
-                    while (true) {
+                    while (!interrupted()) {
                         if (isOpen) {
                             if (isShake) {
+                                isShake = false;
                                 try {
                                     Thread.sleep(1000);
-                                    isShake = false;
                                 } catch (InterruptedException e) {
                                     e.printStackTrace();
                                 }
                             } else {
+                                isShake = true;
                                 try {
                                     Thread.sleep(5000);
-                                    isShake = true;
                                 } catch (InterruptedException e) {
                                     e.printStackTrace();
                                 }
                             }
                         } else {
+                            isShake = false;
                             try {
                                 Thread.sleep(1000);
-                                isShake = false;
                             } catch (InterruptedException e) {
                                 e.printStackTrace();
                             }
@@ -67,8 +67,8 @@ public class MainHook implements IXposedHookLoadPackage, IXposedHookZygoteInit {
             systemContext.registerReceiver(new BroadcastReceiver() {
                 @Override
                 public void onReceive(Context context, Intent intent) {
-                    XposedBridge.log("收到：" + intent.getAction()+":"+intent.getBooleanExtra("open",true));
-                    isOpen = intent.getBooleanExtra("open",true);
+                    XposedBridge.log("收到：" + intent.getAction() + ":" + intent.getBooleanExtra("open", true));
+                    isOpen = intent.getBooleanExtra("open", true);
                 }
             }, new IntentFilter(START));
 

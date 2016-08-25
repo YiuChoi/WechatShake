@@ -5,7 +5,7 @@
         android:key="open"
         android:summaryOff="关闭"
         android:summaryOn="打开"
-        android:title="自动摇一摇"/>
+        android:title="自动摇一摇(5s一次)"/>
     <Preference
         android:title="支付宝捐赠">
         <intent
@@ -22,7 +22,7 @@
     </Preference>
     <Preference
         android:key="co"
-        android:summary="加入群"
+        android:summary="加入群290873461"
         android:title="商业合作">
     </Preference>
 </PreferenceScreen>
