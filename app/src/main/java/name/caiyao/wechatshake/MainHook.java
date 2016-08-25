@@ -35,16 +35,16 @@ public class MainHook implements IXposedHookLoadPackage, IXposedHookZygoteInit {
                     while (!interrupted()) {
                         if (isOpen) {
                             if (isShake) {
-                                isShake = false;
                                 try {
                                     Thread.sleep(1000);
+                                    isShake = false;
                                 } catch (InterruptedException e) {
                                     e.printStackTrace();
                                 }
                             } else {
-                                isShake = true;
                                 try {
                                     Thread.sleep(5000);
+                                    isShake = true;
                                 } catch (InterruptedException e) {
                                     e.printStackTrace();
                                 }

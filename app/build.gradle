@@ -6,14 +6,14 @@ android {
     defaultConfig {
         applicationId "name.caiyao.wechatshake"
         minSdkVersion 17
-        targetSdkVersion 21
+        targetSdkVersion 24
         versionCode 1
-        versionName "1.0"
+        versionName "0.0.1 内测版"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
         release {
-            minifyEnabled false
+            minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
