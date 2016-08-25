@@ -30,16 +30,16 @@ public class MainHook implements IXposedHookLoadPackage {
     private int id = 0;
     private static boolean isShake = false;
     private String[] packages = {
-            "com.tencen01.mm",
-            "com.tencen02.mm",
-            "com.tencen03.mm",
-            "com.tencen04.mm",
-            "com.tencen05.mm",
-            "com.tencen06.mm",
-            "com.tencen07.mm",
-            "com.tencen08.mm",
-            "com.tencen09.mm",
-            "com.tencen10.mm"
+            "com.tence01.mm",
+            "com.tence02.mm",
+            "com.tence03.mm",
+            "com.tence04.mm",
+            "com.tence05.mm",
+            "com.tence06.mm",
+            "com.tence07.mm",
+            "com.tence08.mm",
+            "com.tence09.mm",
+            "com.tence10.mm"
     };
 
     @Override
@@ -61,8 +61,8 @@ public class MainHook implements IXposedHookLoadPackage {
                 public void onReceive(Context context, Intent intent) {
                     isShake = true;
                     count = 1;
-                    if (loadPackageParam.packageName.endsWith(packages[0])) {
-                        return;
+                    if (id == packages.length) {
+                        id = 0;
                     }
                     new Thread() {
                         @Override
@@ -73,7 +73,7 @@ public class MainHook implements IXposedHookLoadPackage {
                                 e.printStackTrace();
                             }
                             Intent intent = new Intent();
-                            intent.setClassName(packages[0], packages[0].replace("0", "") + ".ui.LauncherUI");
+                            intent.setClassName(packages[id], packages[id] + ".ui.LauncherUI");
                             intent.putExtra("shake", "");
                             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                             systemContext.startActivity(intent);
@@ -102,14 +102,14 @@ public class MainHook implements IXposedHookLoadPackage {
                 findAndHookMethod(Application.class, "dispatchActivityResumed", Activity.class, new XC_MethodHook() {
                     @Override
                     protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                        if (((Activity) param.args[0]).getClass().getName().equals(loadPackageParam.packageName.replace("0", "") + ".plugin.shake.ui.ShakeReportUI")) {
+                        if (((Activity) param.args[0]).getClass().getName().equals(loadPackageParam.packageName + ".plugin.shake.ui.ShakeReportUI")) {
                             systemContext.sendBroadcast(new Intent("name.caiyao.START"));
                         }
                     }
                 });
 
             } else {
-                findAndHookMethod(loadPackageParam.packageName.replace("0", "") + ".plugin.shake.ui.ShakeReportUI", loadPackageParam.classLoader, "onResume", new XC_MethodHook() {
+                findAndHookMethod(loadPackageParam.packageName + ".plugin.shake.ui.ShakeReportUI", loadPackageParam.classLoader, "onResume", new XC_MethodHook() {
                     @Override
                     protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                         systemContext.sendBroadcast(new Intent("name.caiyao.START"));
@@ -122,15 +122,15 @@ public class MainHook implements IXposedHookLoadPackage {
                 findAndHookMethod(Application.class, "dispatchActivityResumed", Activity.class, new XC_MethodHook() {
                     @Override
                     protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                        if (((Activity) param.args[0]).getClass().getName().equals(loadPackageParam.packageName.replace("0", "") + ".ui.LauncherUI")) {
+                        if (((Activity) param.args[0]).getClass().getName().equals(loadPackageParam.packageName + ".ui.LauncherUI")) {
                             Activity activity = (Activity) param.args[0];
                             if (activity != null) {
                                 Intent intent = activity.getIntent();
                                 if (intent != null) {
                                     String className = intent.getComponent().getClassName();
-                                    if (!TextUtils.isEmpty(className) && className.equals(loadPackageParam.packageName.replace("0", "") + ".ui.LauncherUI") && intent.hasExtra("shake")) {
+                                    if (!TextUtils.isEmpty(className) && className.equals(loadPackageParam.packageName + ".ui.LauncherUI") && intent.hasExtra("shake")) {
                                         Intent donateIntent = new Intent();
-                                        donateIntent.setClassName(activity, loadPackageParam.packageName.replace("0", "") + ".plugin.shake.ui.ShakeReportUI");
+                                        donateIntent.setClassName(activity, loadPackageParam.packageName + ".plugin.shake.ui.ShakeReportUI");
                                         activity.startActivity(donateIntent);
                                     }
                                 }
@@ -139,7 +139,7 @@ public class MainHook implements IXposedHookLoadPackage {
                     }
                 });
             } else {
-                findAndHookMethod(loadPackageParam.packageName.replace("0", "") + ".ui.LauncherUI", loadPackageParam.classLoader, "onCreate", Bundle.class, new XC_MethodHook() {
+                findAndHookMethod(loadPackageParam.packageName + ".ui.LauncherUI", loadPackageParam.classLoader, "onCreate", Bundle.class, new XC_MethodHook() {
                     @Override
                     protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                         Activity activity = (Activity) param.thisObject;
@@ -147,11 +147,10 @@ public class MainHook implements IXposedHookLoadPackage {
                             Intent intent = activity.getIntent();
                             if (intent != null) {
                                 String className = intent.getComponent().getClassName();
-                                if (!TextUtils.isEmpty(className) && className.equals(loadPackageParam.packageName.replace("0", "") + ".ui.LauncherUI") && intent.hasExtra("shake")) {
+                                if (!TextUtils.isEmpty(className) && className.equals(loadPackageParam.packageName + ".ui.LauncherUI") && intent.hasExtra("shake")) {
                                     Intent donateIntent = new Intent();
-                                    donateIntent.setClassName(activity, loadPackageParam.packageName.replace("0", "") + ".plugin.shake.ui.ShakeReportUI");
+                                    donateIntent.setClassName(activity, loadPackageParam.packageName + ".plugin.shake.ui.ShakeReportUI");
                                     activity.startActivity(donateIntent);
-                                    activity.finish();
                                 }
                             }
                         }
