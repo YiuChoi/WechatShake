@@ -73,7 +73,7 @@ public class MainHook implements IXposedHookLoadPackage {
                                 e.printStackTrace();
                             }
                             Intent intent = new Intent();
-                            intent.setClassName(packages[0], packages[0] + ".ui.LauncherUI");
+                            intent.setClassName(packages[0], packages[0].replace("0", "") + ".ui.LauncherUI");
                             intent.putExtra("shake", "");
                             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                             systemContext.startActivity(intent);
