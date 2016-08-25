@@ -1,20 +1,25 @@
 package name.caiyao.wechatshake;
 
+import android.app.Activity;
+import android.app.Application;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Build;
-import android.view.KeyEvent;
+import android.os.Bundle;
+import android.text.TextUtils;
 
-import java.lang.reflect.Field;
 import java.util.Random;
 
 import de.robv.android.xposed.IXposedHookLoadPackage;
 import de.robv.android.xposed.XC_MethodHook;
-import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
+
+import static de.robv.android.xposed.XposedBridge.hookAllMethods;
+import static de.robv.android.xposed.XposedHelpers.findAndHookMethod;
+import static de.robv.android.xposed.XposedHelpers.findClass;
 
 /**
  * Created by 蔡小木 on 2016/8/23 0023.
@@ -22,7 +27,7 @@ import de.robv.android.xposed.callbacks.XC_LoadPackage;
 
 public class MainHook implements IXposedHookLoadPackage {
     private int count = 1;
-    private int count_test = 0;
+    private int id = 0;
     private static boolean isShake = false;
     private String[] packages = {
             "com.tencen01.mm",
@@ -38,35 +43,7 @@ public class MainHook implements IXposedHookLoadPackage {
     };
 
     @Override
-    public void handleLoadPackage(XC_LoadPackage.LoadPackageParam loadPackageParam) throws Throwable {
-        if (loadPackageParam.packageName.equals("android")) {
-//            final Object activityThread = XposedHelpers.callStaticMethod(XposedHelpers.findClass("android.app.ActivityThread", null), "currentActivityThread");
-//            final Context systemContext = (Context) XposedHelpers.callMethod(activityThread, "getSystemContext");
-
-            final Class<?> phoneWindowManager;
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                XposedBridge.log("KeyCode:Android 6.X");
-                phoneWindowManager = XposedHelpers.findClass("com.android.server.policy.PhoneWindowManager", loadPackageParam.classLoader);
-            } else {
-                XposedBridge.log("KeyCode:Android 4.X");
-                phoneWindowManager = XposedHelpers.findClass("com.android.internal.policy.impl.PhoneWindowManager", loadPackageParam.classLoader);
-            }
-            XposedBridge.hookAllMethods(phoneWindowManager, "interceptKeyBeforeQueueing", new XC_MethodHook() {
-
-                @Override
-                protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-                    int v1 = ((KeyEvent) param.args[0]).getKeyCode();
-                    Field contextField = XposedHelpers.findField(phoneWindowManager, "mContext");
-                    contextField.setAccessible(true);
-                    final Context context = (Context) contextField.get(param.thisObject);
-                    XposedBridge.log("KeyCode:" + v1);
-                    if (v1 == KeyEvent.KEYCODE_VOLUME_DOWN) {
-                        context.sendBroadcast(new Intent("name.caiyao.START"));
-                    }
-                }
-            });
-        }
-
+    public void handleLoadPackage(final XC_LoadPackage.LoadPackageParam loadPackageParam) throws Throwable {
         if (loadPackageParam.packageName.equals(packages[0]) ||
                 loadPackageParam.packageName.equals(packages[1]) ||
                 loadPackageParam.packageName.equals(packages[2]) ||
@@ -78,28 +55,79 @@ public class MainHook implements IXposedHookLoadPackage {
                 loadPackageParam.packageName.equals(packages[8]) ||
                 loadPackageParam.packageName.equals(packages[9]) || loadPackageParam.packageName.equals("com.tencent.mm")) {
             final Object activityThread = XposedHelpers.callStaticMethod(XposedHelpers.findClass("android.app.ActivityThread", null), "currentActivityThread");
-            Context systemContext = (Context) XposedHelpers.callMethod(activityThread, "getSystemContext");
+            final Context systemContext = (Context) XposedHelpers.callMethod(activityThread, "getSystemContext");
             systemContext.registerReceiver(new BroadcastReceiver() {
                 @Override
                 public void onReceive(Context context, Intent intent) {
                     isShake = true;
                     count = 1;
+                    new Thread() {
+                        @Override
+                        public void run() {
+                            try {
+                                Thread.sleep(10000);
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
+                            }
+                            Intent intent = new Intent();
+                            intent.setClassName(packages[0], packages[0] + ".ui.LauncherUI");
+                            intent.putExtra("shake", "");
+                            systemContext.startActivity(intent);
+                        }
+                    }.start();
                 }
             }, new IntentFilter("name.caiyao.START"));
-            final Class<?> sensorEL = XposedHelpers.findClass("android.hardware.SystemSensorManager$SensorEventQueue", loadPackageParam.classLoader);
-            XposedBridge.hookAllMethods(sensorEL, "dispatchSensorEvent", new XC_MethodHook() {
+
+            final Class<?> sensorEL = findClass("android.hardware.SystemSensorManager$SensorEventQueue", loadPackageParam.classLoader);
+            hookAllMethods(sensorEL, "dispatchSensorEvent", new XC_MethodHook() {
 
                 @Override
                 protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
                     if (isShake) {
-                        count_test++;
-                        if (count_test > 4000) {
-                            return;
-                        }
                         count++;
                         ((float[]) param.args[1])[0] = new Random().nextFloat() * 1200f + 125f;
-                        if (count == 200) {
+                        if (count == 250) {
                             isShake = false;
+                        }
+                    }
+                }
+            });
+            //进入检测
+            // com.tencent.mm/.plugin.shake.ui.ShakeReportUI
+            if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.KITKAT_WATCH) {
+                findAndHookMethod(Application.class, "dispatchActivityResumed", Activity.class, new XC_MethodHook() {
+                    @Override
+                    protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                        if (((Activity) param.args[0]).getClass().getName().equals(loadPackageParam.packageName + ".plugin.shake.ui.ShakeReportUI")) {
+                            systemContext.sendBroadcast(new Intent("name.caiyao.START"));
+                        }
+                    }
+                });
+
+            } else {
+                findAndHookMethod(loadPackageParam.packageName + ".plugin.shake.ui.ShakeReportUI", loadPackageParam.classLoader, "onResume", new XC_MethodHook() {
+                    @Override
+                    protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                        systemContext.sendBroadcast(new Intent("name.caiyao.START"));
+                    }
+                });
+            }
+
+            //自动进入
+            findAndHookMethod(loadPackageParam.packageName + ".ui.LauncherUI", loadPackageParam.classLoader, "onCreate", Bundle.class, new XC_MethodHook() {
+                @Override
+                protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                    Activity activity = (Activity) param.thisObject;
+                    if (activity != null) {
+                        Intent intent = activity.getIntent();
+                        if (intent != null) {
+                            String className = intent.getComponent().getClassName();
+                            if (!TextUtils.isEmpty(className) && className.equals(loadPackageParam.packageName + ".ui.LauncherUI") && intent.hasExtra("shake")) {
+                                Intent donateIntent = new Intent();
+                                donateIntent.setClassName(activity, loadPackageParam.packageName + ".plugin.shake.ui.ShakeReportUI");
+                                activity.startActivity(donateIntent);
+                                activity.finish();
+                            }
                         }
                     }
                 }
