@@ -24,16 +24,16 @@ public class MainHook implements IXposedHookLoadPackage {
     private int count = 1;
     private static boolean isShake = false;
     private String[] packages = {
-            "com.tencen01.mm",
-            "com.tencen02.mm",
-            "com.tencen03.mm",
-            "com.tencen04.mm",
-            "com.tencen05.mm",
-            "com.tencen06.mm",
-            "com.tencen07.mm",
-            "com.tencen08.mm",
-            "com.tencen09.mm",
-            "com.tencen10.mm"
+            "com.tencent.vt11",
+            "com.tencent.vt12",
+            "com.tencent.vt13",
+            "com.tencent.vt14",
+            "com.tencent.vt15",
+            "com.tencent.vt16",
+            "com.tencent.vt17",
+            "com.tencent.vt18",
+            "com.tencent.vt19",
+            "com.tencent.vt20"
     };
 
     @Override
@@ -53,9 +53,8 @@ public class MainHook implements IXposedHookLoadPackage {
                     Field contextField = XposedHelpers.findField(phoneWindowManager, "mContext");
                     contextField.setAccessible(true);
                     final Context context = (Context) contextField.get(param.thisObject);
-                    if (v1 == KeyEvent.KEYCODE_VOLUME_DOWN) {
+                    if (v1 == KeyEvent.KEYCODE_K) {
                         context.sendBroadcast(new Intent("name.caiyao.START"));
-                        param.args[0] = new KeyEvent(0, 0, 0, -1, 0);
                     }
                 }
             });
