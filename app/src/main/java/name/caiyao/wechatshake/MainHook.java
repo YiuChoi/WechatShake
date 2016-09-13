@@ -4,7 +4,6 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.pm.PackageInfo;
 import android.os.Build;
 import android.view.KeyEvent;
 
@@ -25,16 +24,16 @@ public class MainHook implements IXposedHookLoadPackage {
     private int count = 1;
     private static boolean isShake = false;
     private String[] packages = {
-            "com.tence01.mm",
-            "com.tence02.mm",
-            "com.tence03.mm",
-            "com.tence04.mm",
-            "com.tence05.mm",
-            "com.tence06.mm",
-            "com.tence07.mm",
-            "com.tence08.mm",
-            "com.tence09.mm",
-            "com.tence10.mm"
+            "com.tencent.vt11",
+            "com.tencent.vt12",
+            "com.tencent.vt13",
+            "com.tencent.vt14",
+            "com.tencent.vt15",
+            "com.tencent.vt16",
+            "com.tencent.vt17",
+            "com.tencent.vt18",
+            "com.tencent.vt19",
+            "com.tencent.vt20"
     };
 
     @Override
@@ -57,28 +56,6 @@ public class MainHook implements IXposedHookLoadPackage {
                     if (v1 == KeyEvent.KEYCODE_K) {
                         context.sendBroadcast(new Intent("name.caiyao.START"));
                     }
-                }
-            });
-            final Class<?> packageManager = XposedHelpers.findClass("com.android.server.pm.PackageManagerService", loadPackageParam.classLoader);
-            XposedBridge.hookAllMethods(packageManager, "getPackageInfo", new XC_MethodHook() {
-                @Override
-                protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                    PackageInfo packageInfo = (PackageInfo) param.getResult();
-                    if (packageInfo.packageName.equals(packages[0]) ||
-                            packageInfo.packageName.equals(packages[1]) ||
-                            packageInfo.packageName.equals(packages[2]) ||
-                            packageInfo.packageName.equals(packages[3]) ||
-                            packageInfo.packageName.equals(packages[4]) ||
-                            packageInfo.packageName.equals(packages[5]) ||
-                            packageInfo.packageName.equals(packages[6]) ||
-                            packageInfo.packageName.equals(packages[7]) ||
-                            packageInfo.packageName.equals(packages[8]) ||
-                            packageInfo.packageName.equals(packages[9]) || packageInfo.packageName.equals("com.tencent.mm")) {
-                        packageInfo.versionCode = 800;
-                        packageInfo.versionName = "6.2.25";
-                        param.setResult(packageInfo);
-                    }
-                    XposedBridge.log("TESTHook" + packageInfo.packageName);
                 }
             });
         }
