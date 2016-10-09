@@ -73,7 +73,7 @@ public class MainActivity extends AppCompatActivity {
                                 wm.updateViewLayout(btn_floatView, params);
                                 break;
                         }
-                        return true;
+                        return false;
                     }
                 });
 
