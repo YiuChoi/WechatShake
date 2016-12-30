@@ -42,7 +42,7 @@ public class MainHook implements IXposedHookLoadPackage {
                     if (isShake) {
                         count++;
                         ((float[]) param.args[1])[0] = new Random().nextFloat() * 1200f + 125f;
-                        if (count == 200) {
+                        if (count == 10) {
                             isShake = false;
                         }
                     }
